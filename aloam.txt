@@ -1,0 +1,7 @@
+To install the aloam_ws you will need:
+  A-LOAM (https://github.com/bobusfil/A-LOAM.git)
+  subt (https://github.com/osrf/subt) for joystick control
+  subt_virtual (https://gitlab.fel.cvut.cz/cras/subt/common/subt_virtual)  for simulator
+  also workspace should extend cras_subt
+
+  
