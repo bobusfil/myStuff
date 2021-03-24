@@ -1,0 +1,12 @@
+packages needed
+  darpa_msgs
+  freenect_stack
+  librealsense
+  octomap_rviz_plugins
+  openni2_camera
+  openni_camera
+  ralsense-ros
+  ros_numpy
+  rtabmap_ros
+  subt
+  subt_virtual
