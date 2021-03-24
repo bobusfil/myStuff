@@ -1,0 +1,40 @@
+Při použití CLI ze stránek Rtabu pro rozchození RGB-D kamery:
+--------------------------------------------------------------
+roslaunch rtabmap_ros rtabmap.launch \
+    rtabmap_args:="--delete_db_on_start" \
+    depth_topic:=/X1/front_rgbd/depth/optical/image_raw \
+    rgb_topic:=/X1/front_rgbd/optical/image_raw \
+    camera_info_topic:=/X1/front_rgbd/optical/camera_info \
+    approx_sync:=false
+--------------------------------------------------------------
+Se vše nastartuje v pořádku ale po spuštění to ihned začne křičet:
+--------------------------------------------------------------
+[ WARN] [1603108173.375916928]: /rtabmap/rgbd_odometry: Did not receive data since 5 seconds! Make sure the input topics are published ("$ rostopic hz my_topic") and the timestamps in their header are set. Parameter "approx_sync" is false, which means that input topics should have all the exact timestamp for the callback to be called.
+/rtabmap/rgbd_odometry subscribed to (exact sync):
+   /X1/front_rgbd/optical/image_raw,
+   /X1/front_rgbd/depth/optical/image_raw,
+   /X1/front_rgbd/optical/camera_info
+--------------------------------------------------------------
+Když zkontroluju rostopic echo (naše topiky) tak všechny publikují ale když dám
+rostopic hz tak mi to začne hlásit 
+-------------------------------------------------------
+subscribed to [/X1/front_rgbd/depth/optical/image_raw]
+WARNING: may be using simulated time
+no new messages
+average rate: 0.000
+	min: 0.000s max: 0.000s std dev: 0.00000s window: 5
+no new messages
+no new messages
+no new messages
+no new messages
+no new messages
+-------------------------------------------------------
+Tomáš:
+Maji pri startu vsechny nody nastaven parametr use_sim_time=true?
+-----------------------------------------------------------------
+neměli napravil jsem (do CLI jsem přidal use_sim_time:=true)
+-----------------------------------------------------------------
+Publikuji se trojice RGB, depth, camera_info se shodnym timestampem, abychom meli jistotu, ze synchronizator dostava, co potrebuje.
+-----------------------------------------------------------------
+
+

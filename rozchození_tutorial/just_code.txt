@@ -1,0 +1,53 @@
+ssh -X bobusfil@zorn.felk.cvut.cz
+P4mp3l1sk4
+subt_port=11611
+unset ROS_IP
+export SUBT_X=XORG
+export DISPLAY=:0
+export SUBT_ROBOT_TEAM=1husky
+export SUBT_MULTIMASTER=0
+export ROS_HOSTNAME=$(hostname).felk.cvut.cz
+export ROS_MASTER_URI=http://${ROS_HOSTNAME}:${subt_port}
+export IGN_PARTITION=$(hostname):${subt_port}:${USER}	
+export IGN_TRANSPORT_TOPIC_STATISTICS=1
+
+cd ~/workspace/subt_virtual/scripts
+./run_sim worldName:=cave_circuit_practice_01
+
+cd ~/workspace/subt_virtual/scripts
+./run_bridge_all worldName:=cave_circuit_practice_01
+
+export ROS_IP=$(ip -4 addr | grep -oP '(?<=inet\s)147\.32\.\d+\.\d+')
+
+export ROS_MASTER_URI=http://zorn.felk.cvut.cz:11611
+export IGN_PARTITION=zorn:11611:bobusfil
+
+Spuštění singularity a subsamplingu point cloudů
+
+cd /datagrid/darpa-subt/singularity
+singularity shell subt_tradr_robot.simg
+source /opt/ros/cras_subt/devel/setup.bash
+cd ~/launchfiles
+roslaunch rtab_w_lidar_subsampling.launch
+
+export ROS_IP=$(ip -4 addr | grep -oP '(?<=inet\s)147\.32\.\d+\.\d+')
+lokálně
+-------------------
+export IGN_TRANSPORT_TOPIC_STATISTICS=1
+export ROS_IP=$(ip -4 addr | grep -oP '(?<=inet\s)192\.168\.\d+\.\d+')
+export IGN_PARTITION=zorn:11611:bobusfil
+source aloam_ws/devel/setup.bash
+
+ground truth node
+-------------------------
+singularity exec --nv -B /datagrid/darpa-subt /datagrid/darpa-subt/singularity/subt_tradr_robot.simg bash -c "source /opt/ros/cras_subt/devel/setup.bash; ROS_NAMESPACE=X1 ROS_MASTER_URI=http://zorn:11611 IGN_PARTITION=zorn:11611:bobusfil rosrun subt_virtual ground_truth_publisher _robot_name:=X1" 
+
+subt_frame_publisher node
+-------------------------
+
+NVIDIA enable: 
+DRI_PRIME=1 glxgears -info
+
+
+killall -9 atop bwm-ng parameter_bridge subt_ros_relay rosout rosmaster ruby image_bridge optical_frame_publisher pose_tf_broadcaster
+

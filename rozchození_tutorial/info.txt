@@ -1,0 +1,38 @@
+Struktura systému:
+Server:
+ - na něm běří simulátor ve kterym běží robot v nějakym světě
+	- nastavit jde jak typ robota tak i senzory který na sobě má pomocí těch teams
+ - taky v něm běží ros a je na něm workspace subt_virtual kterej je stáhlej z repa (https://gitlab.fel.cvut.cz/cras/subt/common/subt_virtual)
+ - server se musí nastavit před tim než se na něm může simulátor spustit.
+	- ssh -X bobusfil@zorn.felk.cvut.cz (timhle se připojíš na server)
+ 
+ - nastavení parametů serveru, rosu, simulátoru	
+	- subt_port=11611	(timhle nastavíš unikátní port pro tvuj ros aby se nepletl s nějakym jinym kterj třeba zrovna na serveru běží)
+	- unset ROS_IP	(netušim)
+	- export SUBT_X=XORG	(něco kvuli vizualizaci)
+	- export DISPLAY=:0	(taky)
+	- export SUBT_ROBOT_TEAM=2husky		(tohle nastavuje team (čili počet a typ robota) kterj se spawne v tom simulátoru)
+	- export SUBT_MULTIMASTER=0 	(nastavený na nulu když chceš ovládat všechny roboty najednou)
+	- export ROS_HOSTNAME=$(hostname).felk.cvut.cz	(přes tohle se můžeš připojovat odkudkoli na ty tvoje roboty a tvuj ros, přes tvuj port) v našem případě to je to (http://zorn.felk.cvut.cz:11611) který zadáváš když dáváš to master_uri
+	- export ROS_MASTER_URI=http://${ROS_HOSTNAME}:${subt_port}	(to co o řádek víš ale spuštění)
+	- export IGN_PARTITION=$(hostname):${subt_port}:${USER}		(netušim)
+
+ - potom už můžeš simulátor spustit, ale musíš to udělat pomocí skriptů který jsou nakódovaný v subt_virtual Martinem a čili musíš nejdřív vlézt do tý složky a až pak to spustit
+	cd ~/workspace/subt_virtual/scripts
+	./run_sim worldName:=cave_circuit_practice_01		(spustí simulátor a zvolí mapu)
+ - v dalšim terminálu musíš spustit "bridge" což je jakýsi spojení mezi robotama v simulátoru a rosem (opět pomocí Martinova skriptu v subt_virtual)
+	cd ~/workspace/cras_subt/src/subt_virtual/scripts
+	./run_bridge_all worldName:=cave_circuit_practice_01	(spustí mosty)
+
+Lokál:
+ - na lokálu běží rviz kterej zovrazuje data který skrze senzory vidí robot v simulátoru kterej je na serveru
+ 	- je nutný při jakymkoli ros příkazu odkázat na lokálu, že chceš aby tvý příkazy vykonával ros na serveru to se udělá pomocí ROS_MASTER_URI=http://zorn.felk.cvut.cz:11611 tim mu řikáš že 		  má koukat na ros kterej běží tam a dla věci odtamtud
+ - po nastevení serveru je nutný nastavit IP addresu lokálu tak aby ros na serveru věděl kam má posílat ty data ze simulátoru (který si zobrazuješ v rvizu), je ale nutný se připojit přes VPN protože to počítá s adresou 147 bla bla bla což je adresa eduroamu. 
+ - po tom nastavíš tu ROS_IP už ale nemusíš už do ničeho lézt protože od Martina maš v .bashrc nasourcovanej ws_cras a ten v sobě tohle už má
+	export ROS_IP=$(ip -4 addr | grep -oP '(?<=inet\s)147\.32\.\d+\.\d+')	(nastaví ti jako ROS_IP tvojí IP addresu)
+	echo ${ROS_IP}
+ - a běží ti už všechno až na rviz a samotnej SLAM. Chceme pustit rviz ale to je ROS věc čili to musíme spustit pomocí toho serverovýho rvizu takže 
+	- ROS_MASTER_URI=http://zorn.felk.cvut.cz:11611 rviz --opengl 300 	(tim opengl si uplně jistej nejsem, zeptat se martina)
+Nyní se musíme soustředit už jen na pipelinu, ale máme už robota kterej už je schopen poskytovat daa který potřebujeme protože na sobě má RGBD kameru tak ted už jen musíme spustit launchfile s úpravou parametrů který zaříděj přesměrování topiků a nebo napsat vlastní launchfile. Nově udělanej launchfile se ale zase musí spoštět pomocí serverovýho rosu.
+Jdeme teda napsat launch file kterej dědí jejich orig. rtabmap.launch ale upravuje mu parametry. (ty topiky)
+	

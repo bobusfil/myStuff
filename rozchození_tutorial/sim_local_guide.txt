@@ -1,0 +1,48 @@
+nastavení GPU:
+
+This will allow you to run simulator locally
+
+terminal 1)
+source /opt/ros/melodic/setup.bash
+roscore
+
+terminal 2)
+source ~/subt_ws/install/setup.bash
+export SUBT_ROBOT_TEAM=1husky
+export IGN_TRANSPORT_TOPIC_STATISTICS=1
+export SUBT_MULTIMASTER=0
+cd ~/aloam_ws/src/subt_virtual/scripts/
+./run_sim worldName:=cave_circuit_practice_01
+
+
+terminal 3)
+source ~/subt_ws/install/setup.bash
+export SUBT_ROBOT_TEAM=1husky
+export IGN_TRANSPORT_TOPIC_STATISTICS=1
+export SUBT_MULTIMASTER=0
+cd ~/aloam_ws/src/subt_virtual/scripts/
+./run_bridge_all worldName:=cave_circuit_practice_01
+
+Tf_metric
+source ~/subt_ws/install/setup.bash
+roslaunch robots:="X1" subt_virtual tf_metrics.launch 
+
+rosbag record
+in launchfile there should be 
+<param name="/use_sim_time" value="true" />
+<!-- při nahrávání bagu tohle .. pomáhá spojit tf stromy-->
+<node name="static_tf_mux" pkg="static_transform_mux" type="static_transform_mux" />
+<param name="/use_sim_time" value="true" />
+
+rosbag record -O cavebag_1 /X1/imu/data /X1/odom /X1/points /X1/pose /X1/pose_static /X1/select /ground_truth_odom /initialpose /joy /joy/set_feedback /rosout /rosout_agg /statistics /subt/run_clock /subt/score /tf /tf_static /X1/points_slow_filtered
+
+rosbag play
+rosbag play --clock bag_name.bag 
+
+Info:
+pořaí spuštění
+- launchfile (s <param name="/use_sim_time" value="true" />)
+- rosbag record
+
+
+

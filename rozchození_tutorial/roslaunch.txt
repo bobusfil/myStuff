@@ -1,0 +1,6 @@
+roslaunch rtabmap_ros rtabmap.launch \
+    rtabmap_args:="--delete_db_on_start" \
+    depth_topic:=/X1/front_rgbd/depth/optical/image_raw \
+    rgb_topic:=/X1/front_rgbd/optical/image_raw \
+    camera_info_topic:=/X1/front_rgbd/optical/camera_info \
+    approx_sync:=false
